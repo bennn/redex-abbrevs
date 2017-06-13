@@ -4,6 +4,7 @@
   *term-equal?*
   check-mf-apply*
   reflexive-transitive-closure/deterministic
+  step/deterministic
   (rename-out
     [reflexive-transitive-closure/deterministic make--->*]))
 
@@ -16,6 +17,16 @@
 ;; =============================================================================
 
 (define *term-equal?* (make-parameter equal?))
+
+(define (step/deterministic ---> t)
+  (define t* (apply-reduction-relation ---> t))
+  (cond
+   [(null? t*)
+    (raise-user-error 'step/deterministic "reduction relation ~a is stuck for term ~a" (object-name --->) t)]
+   [(null? (cdr t*))
+    (car t*)]
+   [else
+    (raise-user-error 'step/deterministic "reduction relation ~a is non-deterministic for term ~a,~n  next states: ~a" (object-name --->) t t*)]))
 
 (define (reflexive-transitive-closure/deterministic --->)
   (define error-name (string->symbol (format "~a*" (object-name --->))))
