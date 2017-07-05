@@ -3,13 +3,14 @@
 (provide
   *term-equal?*
   check-mf-apply*
+  check-judgment-holds*
   reflexive-transitive-closure/deterministic
   step/deterministic
   (rename-out
     [reflexive-transitive-closure/deterministic make--->*]))
 
 (require
-  (only-in rackunit with-check-info* check make-check-location)
+  (only-in rackunit with-check-info* check check-true make-check-location)
   redex/reduction-semantics
   syntax/macro-testing
   (for-syntax racket/base racket/syntax syntax/parse syntax/srcloc))
@@ -39,6 +40,16 @@
       (car v*)]
      [else
       (raise-user-error error-name "multiple results ~a --->* ~a" t v*)])))
+
+(define-syntax (check-judgment-holds* stx)
+  (syntax-parse stx
+   [(_ t*:expr ...)
+    (quasisyntax/loc stx
+      (begin .
+        #,(for/list ([t (in-list (syntax-e (syntax/loc stx (t* ...))))])
+            (quasisyntax/loc t
+              (with-check-info* (list (make-check-location '#,(build-source-location-list t)))
+                (λ () (check-true (judgment-holds #,t))))))))]))
 
 (define-syntax (check-mf-apply* stx)
   (syntax-parse stx
