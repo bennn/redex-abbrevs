@@ -2,6 +2,7 @@
 
 (provide
   *term-equal?*
+  define-language++
   check-mf-apply*
   check-judgment-holds*
   reflexive-transitive-closure/deterministic
@@ -63,3 +64,34 @@
                (with-check-info* (list (make-check-location '#,(build-source-location-list e0)))
                  (λ () (check eq (term #,e0) (term #,e1))))))))]))
 
+(begin-for-syntax
+  (define-syntax-class non-terminal
+    #:attributes (nt*)
+    (pattern (nt:id ... (~literal ::=) pat* ...)
+     #:attr nt* #'(nt ...))
+    (pattern (nt:id pat* ...)
+     #:attr nt* #'(nt))
+    (pattern ((nt:id ...) pat* ...)
+     #:attr nt* #'(nt ...))))
+
+(define-syntax (define-language++ stx)
+  (syntax-parse stx
+   [(_ lang-name:id
+       (~optional (~seq #:alpha-equivalent? alpha=?:id) #:defaults ((alpha=? #'#f)))
+       nt-def*:non-terminal ...
+       . other)
+    #:with define-alpha=?
+           (if (syntax-e #'alpha=?)
+             (syntax/loc stx (define (alpha=? t0 t1) (alpha-equivalent? lang-name t0 t1)))
+             (syntax/loc stx (void)))
+    #:with (define-predicate* ...)
+           (for*/list ([nt* (in-list (syntax-e #'(nt-def*.nt* ...)))]
+                       [nt (in-list (syntax-e nt*))])
+             (define nt? (format-id stx "~a?" (syntax-e nt)))
+             (quasisyntax/loc stx
+               (define #,nt? (redex-match? lang-name #,nt))))
+    (quasisyntax/loc stx
+      (begin
+        (define-language lang-name nt-def* ... . other)
+        define-alpha=?
+        define-predicate* ...))]))
