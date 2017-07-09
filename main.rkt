@@ -5,13 +5,15 @@
   define-language++
   check-mf-apply*
   check-judgment-holds*
+  check-not-judgment-holds*
   reflexive-transitive-closure/deterministic
   step/deterministic
   (rename-out
     [reflexive-transitive-closure/deterministic make--->*]))
 
 (require
-  (only-in rackunit with-check-info* check check-true make-check-location)
+  (only-in rackunit
+    with-check-info* check check-true check-false make-check-location)
   redex/reduction-semantics
   syntax/macro-testing
   (for-syntax racket/base racket/syntax syntax/parse syntax/srcloc))
@@ -42,7 +44,7 @@
      [else
       (raise-user-error error-name "multiple results ~a --->* ~a" t v*)])))
 
-(define-syntax (check-judgment-holds* stx)
+(define-for-syntax (make-check-judgment-holds* check-stx stx)
   (syntax-parse stx
    [(_ t*:expr ...)
     (quasisyntax/loc stx
@@ -50,13 +52,20 @@
         #,(for/list ([t (in-list (syntax-e (syntax/loc stx (t* ...))))])
             (quasisyntax/loc t
               (with-check-info* (list (make-check-location '#,(build-source-location-list t)))
-                (λ () (check-true (judgment-holds #,t))))))))]))
+                (λ () (#,check-stx (judgment-holds #,t))))))))]))
+
+(define-syntax (check-judgment-holds* stx)
+  (make-check-judgment-holds* #'check-true stx))
+
+(define-syntax (check-not-judgment-holds* stx)
+  (make-check-judgment-holds* #'check-false stx))
 
 (define-syntax (check-mf-apply* stx)
   (syntax-parse stx
    [(_ (~optional (~seq #:is-equal? ?eq:expr) #:defaults ([?eq #'#f])) [?e0 ?e1] ...)
     (quasisyntax/loc stx
       (let ([eq (or ?eq (*term-equal?*))])
+        (void)
         #,@(for/list ([kv (in-list (syntax-e #'((?e0 ?e1) ...)))])
              (define e0 (car (syntax-e kv)))
              (define e1 (cadr (syntax-e kv)))
