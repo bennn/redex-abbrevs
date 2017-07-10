@@ -5,4 +5,4 @@
 (define pkg-desc "")
 (define version "0.1")
 (define pkg-authors '(ben))
-(define scribblings '(("docs/redex-abbrevs.scrbl" ())))
+(define scribblings '(("docs/redex-abbrevs.scrbl" () (omit-start))))
