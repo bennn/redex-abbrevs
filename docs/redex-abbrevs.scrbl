@@ -1,7 +1,7 @@
 #lang scribble/manual
 @require[
   scribble/example
-  (for-label racket/base redex/reduction-semantics racket/contract)]
+  (for-label racket/base redex/reduction-semantics racket/contract rackunit)]
 @(define (make-ra-eval) (make-base-eval '(begin (require redex/reduction-semantics rackunit redex-abbrevs))))
 
 @title{Redex Abbrevs}
