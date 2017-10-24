@@ -13,7 +13,7 @@
 
 (require
   (only-in rackunit
-    with-check-info* check check-true check-false make-check-location)
+    with-check-info* check check-true check-false make-check-location make-check-info)
   redex/reduction-semantics
   syntax/macro-testing
   (for-syntax racket/base racket/syntax syntax/parse syntax/srcloc))
@@ -51,7 +51,7 @@
       (begin .
         #,(for/list ([t (in-list (syntax-e (syntax/loc stx (t* ...))))])
             (quasisyntax/loc t
-              (with-check-info* (list (make-check-location '#,(build-source-location-list t)))
+              (with-check-info* (list (make-check-info 'fuq '#,(build-source-location-list t)))
                 (λ () (#,check-stx (judgment-holds #,t))))))))]))
 
 (define-syntax (check-judgment-holds* stx)
@@ -66,11 +66,15 @@
     (quasisyntax/loc stx
       (let ([eq (or ?eq (*term-equal?*))])
         (void)
-        #,@(for/list ([kv (in-list (syntax-e #'((?e0 ?e1) ...)))])
-             (define e0 (car (syntax-e kv)))
-             (define e1 (cadr (syntax-e kv)))
+        #,@(for/list ([stx (in-list (syntax-e #'((?e0 ?e1) ...)))])
+             (define-values [e0 e1]
+               (syntax-parse stx
+                [((mf . arg*) v)
+                 (values #'(mf-apply mf . arg*) #'v)]
+                [(x v)
+                 (raise-syntax-error 'check-mf-apply* "expected a metafunction application" stx #'x '())]))
              (quasisyntax/loc e0
-               (with-check-info* (list (make-check-location '#,(build-source-location-list e0)))
+               (with-check-info* (list (make-check-info 'fuq '#,(build-source-location-list e0)))
                  (λ () (check eq (term #,e0) (term #,e1))))))))]))
 
 (begin-for-syntax
