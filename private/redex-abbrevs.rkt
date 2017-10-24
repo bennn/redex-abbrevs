@@ -67,14 +67,18 @@
       (let ([eq (or ?eq (*term-equal?*))])
         (void)
         #,@(for/list ([stx (in-list (syntax-e #'((?e0 ?e1) ...)))])
-             (define-values [e0 e1]
-               (syntax-parse stx
-                [((mf . arg*) v)
-                 (values #'(mf-apply mf . arg*) #'v)]
-                [(x v)
+             (define kv (syntax-e stx))
+             (define k (car kv))
+             (define loc (build-source-location-list k))
+             (define e0
+               (syntax-parse k
+                [(mf . arg*)
+                 (syntax/loc k (mf-apply mf . arg*))]
+                [_
                  (raise-syntax-error 'check-mf-apply* "expected a metafunction application" stx #'x '())]))
+             (define e1 (cadr kv))
              (quasisyntax/loc e0
-               (with-check-info* (list (make-check-info 'fuq '#,(build-source-location-list e0)))
+               (with-check-info* (list (make-check-info 'fuq '#,loc))
                  (λ () (check eq (term #,e0) (term #,e1))))))))]))
 
 (begin-for-syntax
