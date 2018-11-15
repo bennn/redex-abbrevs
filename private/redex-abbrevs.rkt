@@ -51,7 +51,7 @@
       (begin .
         #,(for/list ([t (in-list (syntax-e (syntax/loc stx (t* ...))))])
             (quasisyntax/loc t
-              (with-check-info* (list (make-check-info 'fuq '#,(build-source-location-list t)))
+              (with-check-info* (list (make-check-location '#,(build-source-location-list t)))
                 (λ () (#,check-stx (judgment-holds #,t))))))))]))
 
 (define-syntax (check-judgment-holds* stx)
@@ -78,7 +78,7 @@
                  (raise-syntax-error 'check-mf-apply* "expected a metafunction application" stx #'x '())]))
              (define e1 (cadr kv))
              (quasisyntax/loc e0
-               (with-check-info* (list (make-check-info 'fuq '#,loc))
+               (with-check-info* (list (make-check-location '#,loc))
                  (λ () (check eq (term #,e0) (term #,e1))))))))]))
 
 (begin-for-syntax
