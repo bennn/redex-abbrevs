@@ -26,12 +26,8 @@ To install the hard way:
 
 ```
 $ git clone https://github.com/bennn/redex-abbrevs
-$ cd redex-abbrevs/redex-abbrevs-lib
-$ raco pkg install
-$ cd ../redex-abbrevs-doc
-$ raco pkg install
-$ cd ../redex-abbrevs
-$ raco pkg install
+$ cd redex-abbrevs
+$ raco pkg install ./redex-abbrevs-lib ./redex-abbrevs-doc ./redex-abbrevs
 ```
 
 
