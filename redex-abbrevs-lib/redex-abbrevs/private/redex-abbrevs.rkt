@@ -26,11 +26,16 @@
   (define t* (apply-reduction-relation ---> t))
   (cond
    [(null? t*)
-    (raise-user-error 'step/deterministic "reduction relation ~a is stuck for term ~a" (object-name --->) t)]
+    (raise-arguments-error 'single-step
+                           "reduction relation is stuck for term"
+                           "term" t "reduction relation" (object-name --->))]
    [(null? (cdr t*))
     (car t*)]
    [else
-    (raise-user-error 'step/deterministic "reduction relation ~a is non-deterministic for term ~a,~n  next states: ~a" (object-name --->) t t*)]))
+    (raise-arguments-error 'single-step
+                           "reduction relation is non-deterministic for term"
+                           "term" t "reduction relation" (object-name --->)
+                           "next states" t*)]))
 
 (define (reflexive-transitive-closure/deterministic --->)
   (define error-name (string->symbol (format "~a*" (object-name --->))))
