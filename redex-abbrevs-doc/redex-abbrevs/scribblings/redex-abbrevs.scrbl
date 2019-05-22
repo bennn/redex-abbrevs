@@ -84,6 +84,11 @@
   Otherwise, @racket[((make--->* -->) t)] will raise an exception.
 }
 
+@defproc[(step/deterministic [--> reduction-relation?] [trm any/c]) any/c]{
+  Similar to @racket[apply-reduction-relation],
+   but either returns one term or raises an exception.
+}
+
 @;@defmodule[redex-abbrevs/unstable]{
 @;  Experimental features.
 @;  May change or disappear at any time.
