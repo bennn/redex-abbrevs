@@ -22,6 +22,8 @@
   make--->*
   ;; (-> reduction-relation? (-> term? term?))
   ;; Compute the determinsitic reflexive transitive closure of a reduction relation.
+
+  step/deterministic
 )
 
 (require redex-abbrevs/private/redex-abbrevs)
